@@ -1,0 +1,135 @@
+import * as fs from 'fs';
+import * as path from 'path';
+
+export const SCHEME = 'xokf://';
+export const DEFAULT_FEDERATION_ANCHOR = 'xokf.md';
+
+export interface ResolvedLink {
+  /** Absolute filesystem path of the target Markdown file. */
+  fsPath: string;
+  /** Optional heading fragment (without the leading '#'), if the link carried one. */
+  fragment?: string;
+}
+
+/**
+ * Walk up from `startDir` to the nearest ancestor directory containing the
+ * federation anchor (default `xokf.md`). Returns undefined if none is found.
+ */
+export function findFederationRoot(
+  startDir: string,
+  anchor: string = DEFAULT_FEDERATION_ANCHOR
+): string | undefined {
+  let dir = startDir;
+  while (true) {
+    if (fs.existsSync(path.join(dir, anchor))) {
+      return dir;
+    }
+    const parent = path.dirname(dir);
+    if (parent === dir) {
+      return undefined;
+    }
+    dir = parent;
+  }
+}
+
+function isWithin(root: string, target: string): boolean {
+  const rel = path.relative(root, target);
+  return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
+}
+
+/**
+ * Resolve an `xokf://<bundleID>/<conceptID>` reference to a concrete Markdown
+ * file, per the OKF federation resolution algorithm:
+ *
+ *   1. From the referring file, walk up to the nearest dir containing `xokf.md`
+ *      → ROOT. (None → unresolved; caller tolerates the broken link.)
+ *   2. Strip the `xokf://` prefix → path P (the whole remainder is a path; do
+ *      NOT split on URL host/path — `//` does not denote an authority here).
+ *   3. Target = ROOT/P.md; if P is a directory (a bundle root), target =
+ *      ROOT/P/index.md.
+ *   4. Missing target → undefined (tolerated broken link, OKF rule 5).
+ */
+export function resolveXokfLink(
+  fromFsPath: string,
+  href: string,
+  anchor: string = DEFAULT_FEDERATION_ANCHOR
+): ResolvedLink | undefined {
+  if (!href.startsWith(SCHEME)) {
+    return undefined;
+  }
+
+  const root = findFederationRoot(path.dirname(fromFsPath), anchor);
+  if (!root) {
+    return undefined;
+  }
+
+  // Take the whole remainder as a path. Separate an optional heading fragment.
+  let p = href.slice(SCHEME.length);
+  let fragment: string | undefined;
+  const hashIdx = p.indexOf('#');
+  if (hashIdx >= 0) {
+    fragment = decodeURIComponent(p.slice(hashIdx + 1)) || undefined;
+    p = p.slice(0, hashIdx);
+  }
+  p = decodeURIComponent(p).replace(/\/+$/, '');
+  if (p === '') {
+    return undefined;
+  }
+
+  const base = path.normalize(path.join(root, p));
+  // Safety: never resolve outside the federation root.
+  if (!isWithin(root, base)) {
+    return undefined;
+  }
+
+  // Concept file: ROOT/P.md
+  const asFile = base + '.md';
+  if (fs.existsSync(asFile) && fs.statSync(asFile).isFile()) {
+    return { fsPath: asFile, fragment };
+  }
+
+  // Bundle root directory: ROOT/P/index.md
+  if (fs.existsSync(base) && fs.statSync(base).isDirectory()) {
+    const idx = path.join(base, 'index.md');
+    if (fs.existsSync(idx) && fs.statSync(idx).isFile()) {
+      return { fsPath: idx, fragment };
+    }
+  }
+
+  // Tolerated broken link.
+  return undefined;
+}
+
+const MARKDOWN_EXT = /\.(md|markdown)$/i;
+
+/**
+ * Resolve an ordinary, scheme-less relative Markdown link (e.g. `./other.md`,
+ * `../notes/x.md#sec`) against the referring file. Returns a target only when it
+ * resolves to an existing Markdown file, so non-Markdown links (images, etc.)
+ * and broken links fall back to the preview's default handling.
+ */
+export function resolveRelativeDocLink(
+  fromFsPath: string,
+  href: string
+): ResolvedLink | undefined {
+  let p = href;
+  let fragment: string | undefined;
+  const hashIdx = p.indexOf('#');
+  if (hashIdx >= 0) {
+    fragment = decodeURIComponent(p.slice(hashIdx + 1)) || undefined;
+    p = p.slice(0, hashIdx);
+  }
+  if (p === '') {
+    return undefined;
+  }
+  p = decodeURIComponent(p);
+  if (!MARKDOWN_EXT.test(p)) {
+    return undefined;
+  }
+
+  const abs = path.resolve(path.dirname(fromFsPath), p);
+  if (fs.existsSync(abs) && fs.statSync(abs).isFile()) {
+    return { fsPath: abs, fragment };
+  }
+  return undefined;
+}

@@ -1,0 +1,64 @@
+{
+  "name": "xokf",
+  "displayName": "xokf",
+  "description": "Navigate cross-bundle OKF references via the xokf:// scheme in Markdown.",
+  "version": "0.1.0",
+  "publisher": "LeafAI",
+  "icon": "assets/icon.png",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/LeafAI/xOKF.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LeafAI/xOKF/issues"
+  },
+  "homepage": "https://github.com/LeafAI/xOKF#readme",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Other"
+  ],
+  "keywords": [
+    "okf",
+    "xokf",
+    "knowledge",
+    "markdown",
+    "links"
+  ],
+  "activationEvents": [
+    "onLanguage:markdown"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "markdown.markdownItPlugins": true,
+    "configuration": {
+      "title": "xokf",
+      "properties": {
+        "xokf.federationAnchor": {
+          "type": "string",
+          "default": "xokf.md",
+          "description": "Sentinel filename that marks the federation root. Resolution walks up parent directories to the nearest folder containing this file."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint .",
+    "pretest": "tsc -p ./tsconfig.test.json",
+    "test": "node --test \"out-tests/test/**/*.test.js\"",
+    "vscode:prepublish": "npm run compile"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "@types/node": "^20.0.0",
+    "@types/vscode": "^1.75.0",
+    "eslint": "^9.0.0",
+    "typescript": "^5.4.0",
+    "typescript-eslint": "^8.0.0"
+  }
+}

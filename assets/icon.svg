@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <title>xokf</title>
+  <circle cx="512" cy="512" r="512" fill="#1c83df"/>
+  <g fill="none" stroke="#ffffff" stroke-width="44" stroke-linecap="round">
+    <line x1="372" y1="404" x2="652" y2="404"/>
+    <line x1="372" y1="404" x2="652" y2="620"/>
+  </g>
+  <circle cx="372" cy="404" r="78" fill="#ffffff"/>
+  <circle cx="652" cy="404" r="78" fill="#ffffff"/>
+  <circle cx="652" cy="620" r="78" fill="#ffffff"/>
+</svg>
