@@ -7,6 +7,8 @@ import {
   resolveXokfLink,
   resolveRelativeDocLink,
   findFederationRoot,
+  PREVIEW_REDIRECT_EXT,
+  isMarkdownPath,
 } from '../src/resolver';
 
 let root: string;
@@ -98,6 +100,35 @@ test('relative link to a missing file is undefined', () => {
 test('relative link to a non-markdown file is undefined', () => {
   touch(path.join(root, 'eng', 'blockchain', 'concepts', 'diagram.png'));
   assert.equal(resolveRelativeDocLink(from, './diagram.png'), undefined);
+});
+
+test('relative link to JSON is undefined by default (markdown-only)', () => {
+  touch(path.join(root, 'eng', 'blockchain', 'concepts', 'data.json'));
+  assert.equal(resolveRelativeDocLink(from, './data.json'), undefined);
+});
+
+test('relative link to JSON resolves under PREVIEW_REDIRECT_EXT', () => {
+  const r = resolveRelativeDocLink(from, './data.json', PREVIEW_REDIRECT_EXT);
+  assert.equal(r?.fsPath, path.join(root, 'eng/blockchain/concepts/data.json'));
+});
+
+test('PREVIEW_REDIRECT_EXT still excludes images', () => {
+  assert.equal(resolveRelativeDocLink(from, './diagram.png', PREVIEW_REDIRECT_EXT), undefined);
+});
+
+test('null extPattern resolves any existing file', () => {
+  const r = resolveRelativeDocLink(from, './diagram.png', null);
+  assert.equal(r?.fsPath, path.join(root, 'eng/blockchain/concepts/diagram.png'));
+});
+
+test('null extPattern still requires the file to exist', () => {
+  assert.equal(resolveRelativeDocLink(from, './missing.png', null), undefined);
+});
+
+test('isMarkdownPath detects .md and .markdown, case-insensitively', () => {
+  assert.equal(isMarkdownPath('/a/b.md'), true);
+  assert.equal(isMarkdownPath('/a/b.MARKDOWN'), true);
+  assert.equal(isMarkdownPath('/a/b.json'), false);
 });
 
 test('custom federation anchor is honored', () => {

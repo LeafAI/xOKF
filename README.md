@@ -44,9 +44,18 @@ becomes Cmd/Ctrl+clickable and opens the corresponding `.md` files.
 
 Clicking an `xokf://` link **in the preview** opens the target in the text editor automatically — no settings required. The editor is placed in the first tab group that is not the preview's own group, so a single click keeps the preview where it is and shows the target document beside it.
 
-The same treatment is applied to ordinary relative Markdown links (e.g. `[x](./other.md)`, `[y](../notes/z.md#sec)`): clicking one in the preview opens the target `.md` in the text editor's first non-preview group, rather than navigating inside the preview pane. Non-Markdown links (images, external `http(s)` links, in-page `#anchor`s) keep their native preview behavior.
+The same treatment is applied to ordinary relative Markdown links (e.g. `[x](./other.md)`, `[y](../notes/z.md#sec)`) **and to relative JSON links** (e.g. `[data](./data.json)`) — a common OKF companion-file pattern. Clicking one in the preview opens the target in the text editor's first non-preview group, rather than navigating inside the preview pane. Other links (images, external `http(s)` links, in-page `#anchor`s) keep their native preview behavior.
 
 > Why a deep link? VS Code's preview webview hard-codes an allowlist of pass-through link schemes and drops `command:`/custom-scheme links, and the native `markdown.preview.openMarkdownLinks` setting cannot target a specific (non-preview) editor group (see [vscode#246316](https://github.com/microsoft/vscode/issues/246316), [vscode#303561](https://github.com/microsoft/vscode/issues/303561)). The `vscode:` scheme *is* in the pass-through allowlist, so rewriting to a `vscode://` deep link that routes to the extension's URI handler is the reliable way to control exactly where the target opens.
+
+## Jumping from JSON to files and previews
+
+In `.json`/`.jsonc` files, any string value that is a relative path to an **existing file** (e.g. `"seeAlso": "./concepts/consensus.md#proof-of-stake"`, `"schema": "./data.json"`, `"asset": "../diagrams/flow.svg"`) becomes clickable (Ctrl/Cmd+Click by default, or Alt+Click if you've set `editor.multiCursorModifier` to `ctrlCmd`):
+
+- **Markdown targets** (`.md`/`.markdown`) open the target's rendered **preview** — reusing an existing preview tab if one is already open beside the JSON editor, via `markdown.showPreviewToSide`.
+- **Everything else** opens in the text editor's first non-preview tab group (same placement as preview-origin links).
+
+`xokf://` references are **not** recognized inside JSON — only plain relative paths to files that exist on disk.
 
 ## Scope and limitations
 

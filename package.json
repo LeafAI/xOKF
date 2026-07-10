@@ -29,7 +29,9 @@
     "links"
   ],
   "activationEvents": [
-    "onLanguage:markdown"
+    "onLanguage:markdown",
+    "onLanguage:json",
+    "onLanguage:jsonc"
   ],
   "main": "./out/extension.js",
   "contributes": {
@@ -43,6 +45,28 @@
           "description": "Sentinel filename that marks the federation root. Resolution walks up parent directories to the nearest folder containing this file."
         }
       }
+    },
+    "commands": [
+      {
+        "command": "xokf.openPreview",
+        "title": "xokf: Open Preview for Linked File"
+      },
+      {
+        "command": "xokf.openInEditor",
+        "title": "xokf: Open Linked File in Editor"
+      }
+    ],
+    "menus": {
+      "commandPalette": [
+        {
+          "command": "xokf.openPreview",
+          "when": "false"
+        },
+        {
+          "command": "xokf.openInEditor",
+          "when": "false"
+        }
+      ]
     }
   },
   "scripts": {

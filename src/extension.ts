@@ -1,5 +1,6 @@
 import * as vscode from 'vscode';
 import { XokfDocumentLinkProvider } from './linkProvider';
+import { XokfJsonLinkProvider } from './jsonLinkProvider';
 import { makeExtendMarkdownIt, getConfiguredAnchor } from './markdownPreview';
 import { parseOpenQuery } from './protocol';
 
@@ -63,6 +64,18 @@ export function activate(context: vscode.ExtensionContext) {
     )
   );
 
+  // JSON editor: make relative Markdown-file paths (e.g. "./concept.md#sec")
+  // written as JSON string values clickable, opening the target's preview.
+  context.subscriptions.push(
+    vscode.languages.registerDocumentLinkProvider(
+      [
+        { language: 'json', scheme: 'file' },
+        { language: 'jsonc', scheme: 'file' },
+      ],
+      new XokfJsonLinkProvider()
+    )
+  );
+
   // Preview deep links route here: open the target in the first non-preview
   // tab group, so the editor never lands inside the Markdown preview's group.
   context.subscriptions.push(
@@ -77,6 +90,33 @@ export function activate(context: vscode.ExtensionContext) {
         }
       },
     })
+  );
+
+  // JSON DocumentLink target for Markdown files: open the rendered preview.
+  // `showPreviewToSide` resolves "beside the active (JSON) editor group", which
+  // is where a preview conventionally already lives, so VS Code reuses that
+  // existing panel rather than opening a duplicate.
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'xokf.openPreview',
+      async (fsPath: string, fragment?: string) => {
+        const uri = fragment
+          ? vscode.Uri.file(fsPath).with({ fragment })
+          : vscode.Uri.file(fsPath);
+        await vscode.commands.executeCommand('markdown.showPreviewToSide', uri);
+      }
+    )
+  );
+
+  // JSON DocumentLink target for non-Markdown files: open in the text editor,
+  // in the first non-preview tab group (same placement as preview-origin links).
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      'xokf.openInEditor',
+      async (fsPath: string, fragment?: string) => {
+        await openTarget({ path: fsPath, fragment });
+      }
+    )
   );
 
   // Preview: rewrite resolved xokf:// links to a vscode:// deep link that the

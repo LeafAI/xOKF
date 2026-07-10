@@ -4,6 +4,7 @@ import {
   resolveRelativeDocLink,
   SCHEME,
   DEFAULT_FEDERATION_ANCHOR,
+  PREVIEW_REDIRECT_EXT,
 } from './resolver';
 import { buildOpenUri } from './protocol';
 
@@ -81,10 +82,10 @@ export function makeExtendMarkdownIt(opts: ExtendOptions) {
         if (href.startsWith(SCHEME)) {
           resolved = resolveXokfLink(fromPath, href, opts.getAnchor());
         } else if (isRelativeDocLink(href)) {
-          // Native relative Markdown links: route through the same handler so
-          // they open in the text editor (first non-preview group), instead of
-          // navigating inside the preview pane.
-          resolved = resolveRelativeDocLink(fromPath, href);
+          // Native relative links (Markdown or JSON companions): route through
+          // the same handler so they open in the text editor (first non-preview
+          // group), instead of navigating inside the preview pane.
+          resolved = resolveRelativeDocLink(fromPath, href, PREVIEW_REDIRECT_EXT);
         }
         if (resolved) {
           const deepLink = buildOpenUri(opts.uriScheme, opts.extensionId, {

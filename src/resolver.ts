@@ -102,15 +102,29 @@ export function resolveXokfLink(
 
 const MARKDOWN_EXT = /\.(md|markdown)$/i;
 
+/** Whether `fsPath` is a Markdown file, per its extension. */
+export function isMarkdownPath(fsPath: string): boolean {
+  return MARKDOWN_EXT.test(fsPath);
+}
+
 /**
- * Resolve an ordinary, scheme-less relative Markdown link (e.g. `./other.md`,
- * `../notes/x.md#sec`) against the referring file. Returns a target only when it
- * resolves to an existing Markdown file, so non-Markdown links (images, etc.)
- * and broken links fall back to the preview's default handling.
+ * Extensions the Markdown preview should redirect to the text editor instead
+ * of letting VS Code's default (same-group) resource-link handling apply.
+ * Markdown itself plus JSON, since JSON side-files are common OKF companions.
+ */
+export const PREVIEW_REDIRECT_EXT = /\.(md|markdown|json|jsonc)$/i;
+
+/**
+ * Resolve an ordinary, scheme-less relative link (e.g. `./other.md`,
+ * `../notes/x.md#sec`) against the referring file. Returns a target only when
+ * it resolves to an existing file whose extension matches `extPattern`
+ * (Markdown-only by default; pass `null` to accept any existing file), so
+ * unmatched links and broken links fall back to the caller's default handling.
  */
 export function resolveRelativeDocLink(
   fromFsPath: string,
-  href: string
+  href: string,
+  extPattern: RegExp | null = MARKDOWN_EXT
 ): ResolvedLink | undefined {
   let p = href;
   let fragment: string | undefined;
@@ -123,7 +137,7 @@ export function resolveRelativeDocLink(
     return undefined;
   }
   p = decodeURIComponent(p);
-  if (!MARKDOWN_EXT.test(p)) {
+  if (extPattern && !extPattern.test(p)) {
     return undefined;
   }
 
