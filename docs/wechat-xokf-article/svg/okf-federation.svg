@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 700" font-family="PingFang SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eaf3fc"/>
+    </linearGradient>
+    <marker id="arrowBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#1c83df"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="700" fill="url(#bg)"/>
+
+  <text x="600" y="55" text-anchor="middle" font-size="30" font-weight="700" fill="#1f2937">OKF：知识以 Markdown 目录树的形式存在</text>
+
+  <!-- federation anchor -->
+  <rect x="500" y="90" width="200" height="50" rx="10" fill="#1c83df"/>
+  <text x="600" y="122" text-anchor="middle" font-size="19" font-weight="700" fill="#ffffff">xokf.md · 联邦锚点</text>
+  <line x1="560" y1="140" x2="300" y2="200" stroke="#1c83df" stroke-width="1.5" stroke-dasharray="4 5"/>
+  <line x1="640" y1="140" x2="900" y2="200" stroke="#1c83df" stroke-width="1.5" stroke-dasharray="4 5"/>
+
+  <!-- bundle A -->
+  <rect x="80" y="200" width="430" height="390" rx="16" fill="#eef4fb" stroke="#1c83df" stroke-width="2"/>
+  <text x="105" y="238" font-size="19" font-weight="700" fill="#1c3a5e">bundle · formal-sciences/cryptography</text>
+
+  <g>
+    <rect x="120" y="270" width="150" height="58" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="195" y="304" text-anchor="middle" font-size="15" fill="#334155">index.md</text>
+
+    <rect x="120" y="366" width="150" height="58" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="195" y="400" text-anchor="middle" font-size="15" fill="#334155">rsa.md</text>
+
+    <rect x="320" y="366" width="150" height="58" rx="8" fill="#ffffff" stroke="#1c83df" stroke-width="2"/>
+    <text x="395" y="400" text-anchor="middle" font-size="15" fill="#1c3a5e">aes.md</text>
+
+    <line x1="195" y1="328" x2="195" y2="366" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="270" y1="304" x2="320" y2="390" stroke="#94a3b8" stroke-width="2"/>
+  </g>
+
+  <!-- bundle B -->
+  <rect x="690" y="200" width="430" height="390" rx="16" fill="#eef4fb" stroke="#1c83df" stroke-width="2"/>
+  <text x="715" y="238" font-size="19" font-weight="700" fill="#1c3a5e">bundle · engineering-technology/.../blockchain</text>
+
+  <g>
+    <rect x="730" y="270" width="170" height="58" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="815" y="304" text-anchor="middle" font-size="15" fill="#334155">index.md</text>
+
+    <rect x="730" y="366" width="190" height="58" rx="8" fill="#ffffff" stroke="#1c83df" stroke-width="2"/>
+    <text x="825" y="400" text-anchor="middle" font-size="14" fill="#1c3a5e">concepts/consensus.md</text>
+
+    <rect x="950" y="366" width="150" height="58" rx="8" fill="#ffffff" stroke="#94a3b8" stroke-width="1.5"/>
+    <text x="1025" y="400" text-anchor="middle" font-size="14" fill="#334155">concepts/pos.md</text>
+
+    <line x1="815" y1="328" x2="825" y2="366" stroke="#94a3b8" stroke-width="2"/>
+    <line x1="900" y1="304" x2="990" y2="366" stroke="#94a3b8" stroke-width="2"/>
+  </g>
+
+  <!-- cross-bundle reference -->
+  <path d="M470,392 C 560,345 640,345 730,392" fill="none" stroke="#1c83df" stroke-width="3" stroke-dasharray="9 7" marker-end="url(#arrowBlue)"/>
+  <rect x="500" y="332" width="300" height="32" rx="8" fill="#ffffff" stroke="#1c83df" stroke-width="1.5"/>
+  <text x="650" y="353" text-anchor="middle" font-size="14" fill="#1c3a5e" font-family="Menlo, Consolas, monospace">xokf://&lt;bundleID&gt;/&lt;conceptID&gt;</text>
+
+  <!-- legend -->
+  <line x1="110" y1="655" x2="160" y2="655" stroke="#94a3b8" stroke-width="2"/>
+  <text x="172" y="660" font-size="15" fill="#475569">bundle 内引用 · ./x.md（Markdown 普通链接）</text>
+
+  <line x1="620" y1="655" x2="670" y2="655" stroke="#1c83df" stroke-width="3" stroke-dasharray="9 7"/>
+  <text x="682" y="660" font-size="15" fill="#475569">跨 bundle 引用 · xokf://（本文扩展）</text>
+</svg>

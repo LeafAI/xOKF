@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 520" font-family="PingFang SC, Microsoft YaHei, sans-serif">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8fafc"/>
+      <stop offset="1" stop-color="#eaf3fc"/>
+    </linearGradient>
+    <marker id="arrowGray" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#94a3b8"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="520" fill="url(#bg2)"/>
+  <text x="600" y="45" text-anchor="middle" font-size="28" font-weight="700" fill="#1f2937">xOKF：一次点击，直达目标</text>
+
+  <!-- Box 1: preview -->
+  <rect x="40" y="90" width="320" height="220" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <rect x="40" y="90" width="320" height="30" rx="14" fill="#e2e8f0"/>
+  <rect x="40" y="106" width="320" height="14" fill="#e2e8f0"/>
+  <circle cx="58" cy="105" r="5" fill="#f87171"/>
+  <circle cx="74" cy="105" r="5" fill="#fbbf24"/>
+  <circle cx="90" cy="105" r="5" fill="#34d399"/>
+  <text x="200" y="150" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">Markdown 预览</text>
+  <rect x="70" y="170" width="260" height="10" rx="5" fill="#e2e8f0"/>
+  <rect x="70" y="190" width="200" height="10" rx="5" fill="#e2e8f0"/>
+  <text x="70" y="232" font-size="16" fill="#1c83df" text-decoration="underline">consensus 机制</text>
+  <circle cx="290" cy="227" r="7" fill="none" stroke="#1c83df" stroke-width="2"/>
+  <circle cx="290" cy="227" r="13" fill="none" stroke="#1c83df" stroke-width="1.5" opacity="0.5"/>
+
+  <!-- arrow 1 -->
+  <line x1="366" y1="200" x2="434" y2="200" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrowGray)"/>
+  <text x="400" y="185" text-anchor="middle" font-size="11" fill="#475569">解析路径</text>
+
+  <!-- Box 2: resolver -->
+  <rect x="440" y="90" width="320" height="220" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <circle cx="600" cy="175" r="42" fill="#1c83df"/>
+  <g fill="none" stroke="#ffffff" stroke-width="3.6" stroke-linecap="round">
+    <line x1="588.5" y1="186.15" x2="611.5" y2="186.15"/>
+    <line x1="588.5" y1="186.15" x2="611.5" y2="203.85"/>
+  </g>
+  <circle cx="588.5" cy="186.15" r="6.4" fill="#ffffff"/>
+  <circle cx="611.5" cy="186.15" r="6.4" fill="#ffffff"/>
+  <circle cx="611.5" cy="203.85" r="6.4" fill="#ffffff"/>
+  <text x="600" y="245" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">xOKF 解析器</text>
+  <text x="600" y="272" text-anchor="middle" font-size="13" fill="#64748b">定位联邦根 · 容忍断链 · 防路径穿越</text>
+
+  <!-- arrow 2 -->
+  <line x1="766" y1="200" x2="834" y2="200" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrowGray)"/>
+  <text x="800" y="185" text-anchor="middle" font-size="11" fill="#475569">非预览组打开</text>
+
+  <!-- Box 3: placement -->
+  <rect x="840" y="90" width="320" height="220" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="1000" y="130" text-anchor="middle" font-size="18" font-weight="700" fill="#1f2937">打开位置</text>
+
+  <rect x="865" y="150" width="125" height="110" rx="8" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1.5"/>
+  <rect x="880" y="168" width="95" height="8" rx="4" fill="#cbd5e1"/>
+  <rect x="880" y="184" width="70" height="8" rx="4" fill="#cbd5e1"/>
+  <rect x="880" y="200" width="85" height="8" rx="4" fill="#cbd5e1"/>
+  <text x="927" y="285" text-anchor="middle" font-size="12" fill="#475569">预览（保持原位）</text>
+
+  <rect x="1010" y="150" width="125" height="110" rx="8" fill="#eaf3fc" stroke="#1c83df" stroke-width="2"/>
+  <path d="M1030,168 h60 l14,14 v58 h-74 z" fill="#ffffff" stroke="#1c83df" stroke-width="1.5"/>
+  <path d="M1090,168 v14 h14" fill="none" stroke="#1c83df" stroke-width="1.5"/>
+  <rect x="1038" y="196" width="50" height="6" rx="3" fill="#93c5fd"/>
+  <rect x="1038" y="210" width="50" height="6" rx="3" fill="#93c5fd"/>
+  <rect x="1038" y="224" width="34" height="6" rx="3" fill="#93c5fd"/>
+  <text x="1072" y="285" text-anchor="middle" font-size="12" fill="#1c3a5e">编辑器（新标签组）</text>
+
+  <!-- reverse flow: JSON to preview -->
+  <text x="40" y="400" font-size="17" font-weight="700" fill="#1c83df">JSON 联动</text>
+
+  <rect x="220" y="360" width="300" height="100" rx="14" fill="#ffffff" stroke="#cbd5e1" stroke-width="2"/>
+  <text x="370" y="392" text-anchor="middle" font-size="17" font-weight="700" fill="#1f2937">JSON 编辑器</text>
+  <text x="370" y="420" text-anchor="middle" font-size="13" fill="#64748b" font-family="Menlo, Consolas, monospace">"seeAlso": "./consensus.md"</text>
+
+  <line x1="530" y1="410" x2="640" y2="410" stroke="#94a3b8" stroke-width="3" marker-end="url(#arrowGray)"/>
+  <text x="585" y="395" text-anchor="middle" font-size="12" fill="#475569">点击路径</text>
+
+  <rect x="650" y="360" width="330" height="100" rx="14" fill="#ffffff" stroke="#1c83df" stroke-width="2"/>
+  <text x="815" y="392" text-anchor="middle" font-size="17" font-weight="700" fill="#1f2937">对应目标</text>
+  <text x="815" y="420" text-anchor="middle" font-size="13" fill="#64748b">是 .md → 打开预览；否则 → 打开编辑器</text>
+</svg>
