@@ -79,6 +79,12 @@ npm run watch        # rebuild on change
 
 Press `F5` in VS Code to launch an Extension Development Host, then open any `.md` file located beneath an `xokf.md` federation root.
 
+## Releasing
+
+Bump `version` in `package.json` and add a matching entry to `CHANGELOG.md`, then run the [`Release`](.github/workflows/release.yml) workflow manually (Actions → Release → Run workflow). It lints, tests, packages the VSIX, publishes a GitHub Release with the VSIX attached, and publishes to the VS Code Marketplace.
+
+Requires a repository secret `VSCODE_MARKETPLACE_TOKEN` — a [Personal Access Token](https://code.visualstudio.com/api/working-with-extensions/publishing-extension#get-a-personal-access-token) for the `LeafAI` publisher with Marketplace publish scope.
+
 ## License
 
 [MIT](./LICENSE)
