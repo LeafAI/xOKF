@@ -1,5 +1,7 @@
 # xokf
 
+[![Open VSX Registry](https://img.shields.io/open-vsx/v/cloorc/xokf?label=Open%20VSX)](https://open-vsx.org/extension/cloorc/xokf)
+
 A VS Code extension that makes cross-bundle [OKF](https://github.com/GoogleCloudPlatform/knowledge-catalog) references using the `xokf://` scheme clickable in Markdown.
 
 OKF (Open Knowledge Format) bundles are directory trees of Markdown files. The `xokf://<bundleID>/<conceptID>` scheme is a local-first extension on top of OKF v0.1 for addressing Concepts **across** federated bundles. VS Code's built-in Markdown support does not understand this scheme, so such links are inert. This extension resolves them and lets you Cmd/Ctrl+click to jump straight to the target file.

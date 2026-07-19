@@ -3,7 +3,7 @@
   "displayName": "xokf",
   "description": "Navigate cross-bundle OKF references via the xokf:// scheme in Markdown.",
   "version": "0.1.0",
-  "publisher": "LeafAI",
+  "publisher": "cloorc",
   "icon": "assets/icon.png",
   "license": "MIT",
   "repository": {
@@ -13,7 +13,6 @@
   "bugs": {
     "url": "https://github.com/LeafAI/xOKF/issues"
   },
-  "homepage": "https://github.com/LeafAI/xOKF#readme",
   "engines": {
     "vscode": "^1.75.0"
   },

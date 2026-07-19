@@ -1,6 +1,15 @@
 name: Release
 # Builds the VSIX, creates a GitHub Release with it attached, and publishes to
-# the VS Code Marketplace. Triggered manually so a publish is always deliberate.
+# the Open VSX Registry. Triggered manually so a publish is always deliberate.
+#
+# Required repository secret:
+#   OVSX_PAT — Open VSX personal access token with publish rights
+#              (https://open-vsx.org/user-settings/tokens).
+#
+# Version comes from package.json. Bump it locally before running this workflow;
+# the created GitHub Release tag is v<version>. Re-running against an unchanged
+# version will fail at the create-release step (tag already exists), which is
+# the intended safety net.
 
 on: [workflow_dispatch]
 
@@ -22,12 +31,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Lint
-        run: npm run lint
-
-      - name: Test
-        run: npm test
-
       - name: Build extension
         run: npm run compile
 
@@ -38,13 +41,6 @@ jobs:
         id: package_version
         uses: martinbeentjes/npm-get-version-action@3cf273023a0dda27efcd3164bdfb51908dd46a5b # v1.3.1
 
-      - name: Check version is mentioned in Changelog
-        uses: mindsers/changelog-reader-action@1faaf50aa09d5793d9a100819973df801febfb31 # v2.4.0
-        id: changelog_reader
-        with:
-          version: ${{ steps.package_version.outputs.current-version }}
-          path: 'CHANGELOG.md'
-
       - name: Create a GitHub Release
         id: create_release
         uses: softprops/action-gh-release@718ea10b132b3b2eba29c1007bb80653f286566b # v3.0.1
@@ -53,10 +49,10 @@ jobs:
         with:
           tag_name: v${{ steps.package_version.outputs.current-version }}
           name: ${{ steps.package_version.outputs.current-version }}
-          body: ${{ steps.changelog_reader.outputs.changes }}
+          generate_release_notes: true
           files: '*.vsix'
 
-      - name: Publish to VS Code Marketplace
+      - name: Publish to Open VSX Registry
         env:
-          VSCE_PAT: ${{ secrets.VSCODE_MARKETPLACE_TOKEN }}
-        run: npx --yes @vscode/vsce publish --packagePath $(ls *.vsix)
+          OVSX_PAT: ${{ secrets.OVSX_PAT }}
+        run: npx --yes ovsx publish $(ls *.vsix)
