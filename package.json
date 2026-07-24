@@ -53,6 +53,11 @@
       {
         "command": "xokf.openInEditor",
         "title": "xokf: Open Linked File in Editor"
+      },
+      {
+        "command": "xokf.exportToPdf",
+        "title": "xokf: 导出为 PDF（Export to PDF）",
+        "icon": "$(export)"
       }
     ],
     "menus": {
@@ -64,6 +69,17 @@
         {
           "command": "xokf.openInEditor",
           "when": "false"
+        },
+        {
+          "command": "xokf.exportToPdf",
+          "when": "editorLangId == markdown"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "xokf.exportToPdf",
+          "when": "editorLangId == markdown",
+          "group": "navigation"
         }
       ]
     }
@@ -78,10 +94,14 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.0.0",
+    "@types/markdown-it": "^14.1.2",
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.75.0",
     "eslint": "^9.0.0",
     "typescript": "^5.4.0",
     "typescript-eslint": "^8.0.0"
+  },
+  "dependencies": {
+    "markdown-it": "^14.3.0"
   }
 }

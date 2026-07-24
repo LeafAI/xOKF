@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- `xokf: 导出为 PDF（Export to PDF）` command: renders the current Markdown
+  document with a standalone `markdown-it` instance (independent of the
+  built-in preview engine, so it also works when exporting via third-party
+  PDF tools would otherwise bypass our link/image resolution), inlines
+  resolvable `xokf://`/relative images as base64 data URIs, rewrites
+  resolvable `xokf://`/relative links to absolute `file://` URIs, and opens
+  the result in a webview that triggers the system print dialog for
+  "Save as PDF". No external dependency or process is required.
+
 ### Fixed
 
 - Markdown preview: `![alt](xokf://<bundleID>/<assetPath>)` image references

@@ -63,6 +63,16 @@ In `.json`/`.jsonc` files, any string value that is a relative path to an **exis
 
 `xokf://` references are **not** recognized inside JSON — only plain relative paths to files that exist on disk.
 
+## Exporting a document to PDF
+
+Run **`xokf: 导出为 PDF（Export to PDF）`** from the Command Palette (or the export icon in the Markdown editor's title bar) to turn the current document into a standalone, shareable PDF:
+
+- `xokf://` and plain relative **images** are inlined as base64 data URIs, so the exported file has no external dependencies and looks correct wherever it's opened.
+- `xokf://` and plain relative **links** are resolved and rewritten to an absolute `file://` URI (best-effort — only actionable on the machine that produced the export).
+- Unresolved references are left untouched, same tolerance as everywhere else in the extension.
+
+The command opens a webview with the rendered document and triggers the browser print dialog — choose "Save as PDF" (or your OS's equivalent) to finish the export. Rendering happens entirely locally; no external process, browser, or network access is used.
+
 ## Scope and limitations
 
 - Resolution is filesystem-based, so it only applies to files saved on disk (`file://` documents).

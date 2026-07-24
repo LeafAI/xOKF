@@ -3,6 +3,7 @@ import { XokfDocumentLinkProvider } from './linkProvider';
 import { XokfJsonLinkProvider } from './jsonLinkProvider';
 import { makeExtendMarkdownIt, getConfiguredAnchor } from './markdownPreview';
 import { parseOpenQuery } from './protocol';
+import { renderDocumentForExport } from './pdfExport';
 
 /**
  * Pick the editor group to open a target in: the first tab group whose active
@@ -53,6 +54,43 @@ function revealHeading(editor: vscode.TextEditor, fragment: string): void {
       return;
     }
   }
+}
+
+/**
+ * Find the Markdown document to export: prefer the active text editor if
+ * it's showing Markdown, otherwise fall back to the most recently active
+ * Markdown document among open editors (covers invoking the command while
+ * the preview pane — not the source editor — has focus).
+ */
+function findMarkdownDocument(): vscode.TextDocument | undefined {
+  const active = vscode.window.activeTextEditor?.document;
+  if (active?.languageId === 'markdown') {
+    return active;
+  }
+  for (const editor of vscode.window.visibleTextEditors) {
+    if (editor.document.languageId === 'markdown') {
+      return editor.document;
+    }
+  }
+  return undefined;
+}
+
+/**
+ * Render the given Markdown document (resolving `xokf://` links/images the
+ * same way the live preview does) into a standalone webview and trigger the
+ * browser print dialog, so the user can save it as PDF. Rendering happens
+ * entirely locally — no external process or dependency is spawned.
+ */
+async function exportDocumentToPdf(document: vscode.TextDocument): Promise<void> {
+  const { html, title } = renderDocumentForExport(document, getConfiguredAnchor());
+
+  const panel = vscode.window.createWebviewPanel(
+    'xokfPdfExport',
+    `导出 PDF: ${title}`,
+    vscode.ViewColumn.Active,
+    { enableScripts: true }
+  );
+  panel.webview.html = html;
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -117,6 +155,25 @@ export function activate(context: vscode.ExtensionContext) {
         await openTarget({ path: fsPath, fragment });
       }
     )
+  );
+
+  // Export the current Markdown document (with xokf:// links/images
+  // resolved) to a standalone webview and trigger the browser print dialog,
+  // so the user can save it as PDF for sharing.
+  context.subscriptions.push(
+    vscode.commands.registerCommand('xokf.exportToPdf', async () => {
+      const document = findMarkdownDocument();
+      if (!document) {
+        void vscode.window.showWarningMessage('xokf: 没有找到可导出的 Markdown 文档。');
+        return;
+      }
+      try {
+        await exportDocumentToPdf(document);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
+        void vscode.window.showErrorMessage(`xokf: 导出 PDF 失败 — ${message}`);
+      }
+    })
   );
 
   // Preview: rewrite resolved xokf:// links to a vscode:// deep link that the
