@@ -10,5 +10,4 @@ tsconfig.test.json
 eslint.config.mjs
 .editorconfig
 .gitignore
-node_modules/**
 !assets/icon.png

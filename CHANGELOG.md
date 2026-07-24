@@ -20,6 +20,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+- Packaging: `.vscodeignore` unconditionally excluded `node_modules/**`, which
+  was safe while the extension had zero runtime npm dependencies but silently
+  stripped the newly-added `markdown-it` (and its transitive deps) out of the
+  VSIX, producing `Cannot find module 'markdown-it'` at activation once
+  installed from the packaged extension. Removed the blanket exclusion so
+  `vsce package` includes `dependencies` (still excluding `devDependencies`
+  like `eslint`/`typescript`, which `vsce` already filters out via
+  `npm ls --omit=dev`).
 - Markdown preview: `![alt](xokf://<bundleID>/<assetPath>)` image references
   were left unresolved (broken-image icon) because the preview plugin only
   patched markdown-it's `link_open` rule, not its separate `image` rule. Added
