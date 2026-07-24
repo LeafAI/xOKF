@@ -5,6 +5,18 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+
+- Markdown preview: `![alt](xokf://<bundleID>/<assetPath>)` image references
+  were left unresolved (broken-image icon) because the preview plugin only
+  patched markdown-it's `link_open` rule, not its separate `image` rule. Added
+  a matching `image` rule that resolves the asset via the same federation
+  algorithm and rewrites the `src` to a CSP-safe webview resource URI (via
+  `resourceProvider.asWebviewUri`, mirroring what VS Code's own image renderer
+  does for scheme-less paths).
+
 ## [0.1.0] - 2026-06-18
 
 ### Added

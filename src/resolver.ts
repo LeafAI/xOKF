@@ -37,23 +37,23 @@ function isWithin(root: string, target: string): boolean {
   return rel === '' || (!rel.startsWith('..') && !path.isAbsolute(rel));
 }
 
+interface XokfBase {
+  root: string;
+  base: string;
+  fragment?: string;
+}
+
 /**
- * Resolve an `xokf://<bundleID>/<conceptID>` reference to a concrete Markdown
- * file, per the OKF federation resolution algorithm:
- *
- *   1. From the referring file, walk up to the nearest dir containing `xokf.md`
- *      → ROOT. (None → unresolved; caller tolerates the broken link.)
- *   2. Strip the `xokf://` prefix → path P (the whole remainder is a path; do
- *      NOT split on URL host/path — `//` does not denote an authority here).
- *   3. Target = ROOT/P.md; if P is a directory (a bundle root), target =
- *      ROOT/P/index.md.
- *   4. Missing target → undefined (tolerated broken link, OKF rule 5).
+ * Shared first half of xokf:// resolution: find the federation root, strip
+ * the scheme, decode the path, and join it under the root — with the
+ * traversal guard applied. Returns undefined for anything that can't even
+ * get this far (no scheme, no federation root, empty path, or escapes root).
  */
-export function resolveXokfLink(
+function resolveXokfBase(
   fromFsPath: string,
   href: string,
-  anchor: string = DEFAULT_FEDERATION_ANCHOR
-): ResolvedLink | undefined {
+  anchor: string
+): XokfBase | undefined {
   if (!href.startsWith(SCHEME)) {
     return undefined;
   }
@@ -82,6 +82,32 @@ export function resolveXokfLink(
     return undefined;
   }
 
+  return { root, base, fragment };
+}
+
+/**
+ * Resolve an `xokf://<bundleID>/<conceptID>` reference to a concrete Markdown
+ * file, per the OKF federation resolution algorithm:
+ *
+ *   1. From the referring file, walk up to the nearest dir containing `xokf.md`
+ *      → ROOT. (None → unresolved; caller tolerates the broken link.)
+ *   2. Strip the `xokf://` prefix → path P (the whole remainder is a path; do
+ *      NOT split on URL host/path — `//` does not denote an authority here).
+ *   3. Target = ROOT/P.md; if P is a directory (a bundle root), target =
+ *      ROOT/P/index.md.
+ *   4. Missing target → undefined (tolerated broken link, OKF rule 5).
+ */
+export function resolveXokfLink(
+  fromFsPath: string,
+  href: string,
+  anchor: string = DEFAULT_FEDERATION_ANCHOR
+): ResolvedLink | undefined {
+  const resolved = resolveXokfBase(fromFsPath, href, anchor);
+  if (!resolved) {
+    return undefined;
+  }
+  const { base, fragment } = resolved;
+
   // Concept file: ROOT/P.md
   const asFile = base + '.md';
   if (fs.existsSync(asFile) && fs.statSync(asFile).isFile()) {
@@ -94,6 +120,31 @@ export function resolveXokfLink(
     if (fs.existsSync(idx) && fs.statSync(idx).isFile()) {
       return { fsPath: idx, fragment };
     }
+  }
+
+  // Tolerated broken link.
+  return undefined;
+}
+
+/**
+ * Resolve an `xokf://<bundleID>/<assetPath>` reference to an existing
+ * non-Markdown asset (image, etc.), per the same federation root and path
+ * rules as `resolveXokfLink`, except the target is taken as-is — no `.md` /
+ * `index.md` fallback — since assets keep their own extension.
+ */
+export function resolveXokfAsset(
+  fromFsPath: string,
+  href: string,
+  anchor: string = DEFAULT_FEDERATION_ANCHOR
+): ResolvedLink | undefined {
+  const resolved = resolveXokfBase(fromFsPath, href, anchor);
+  if (!resolved) {
+    return undefined;
+  }
+  const { base, fragment } = resolved;
+
+  if (fs.existsSync(base) && fs.statSync(base).isFile()) {
+    return { fsPath: base, fragment };
   }
 
   // Tolerated broken link.

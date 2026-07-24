@@ -5,6 +5,7 @@ import * as os from 'node:os';
 import * as path from 'node:path';
 import {
   resolveXokfLink,
+  resolveXokfAsset,
   resolveRelativeDocLink,
   findFederationRoot,
   PREVIEW_REDIRECT_EXT,
@@ -26,6 +27,7 @@ before(() => {
   touch(path.join(root, 'eng', 'blockchain', 'index.md'));
   touch(path.join(root, 'eng', 'blockchain', 'concepts', 'consensus.md'));
   touch(path.join(root, 'eng', 'blockchain', 'concepts', 'with space.md'));
+  touch(path.join(root, 'eng', 'blockchain', 'assets', 'diagram.png'));
   from = path.join(root, 'eng', 'blockchain', 'concepts', 'consensus.md');
 });
 
@@ -143,4 +145,25 @@ test('custom federation anchor is honored', () => {
   } finally {
     fs.rmSync(alt, { recursive: true, force: true });
   }
+});
+
+test('resolveXokfAsset resolves an asset keeping its own extension', () => {
+  const r = resolveXokfAsset(from, 'xokf://eng/blockchain/assets/diagram.png');
+  assert.equal(r?.fsPath, path.join(root, 'eng/blockchain/assets/diagram.png'));
+});
+
+test('resolveXokfAsset does not apply the .md / index.md fallback', () => {
+  assert.equal(resolveXokfAsset(from, 'xokf://eng/blockchain/concepts/consensus'), undefined);
+});
+
+test('resolveXokfAsset: missing asset is a tolerated broken link', () => {
+  assert.equal(resolveXokfAsset(from, 'xokf://eng/blockchain/assets/missing.png'), undefined);
+});
+
+test('resolveXokfAsset: path traversal outside the federation root is blocked', () => {
+  assert.equal(resolveXokfAsset(from, 'xokf://../../../../etc/passwd'), undefined);
+});
+
+test('resolveXokfAsset: non-xokf scheme is ignored', () => {
+  assert.equal(resolveXokfAsset(from, 'http://example.com/diagram.png'), undefined);
 });

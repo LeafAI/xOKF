@@ -1,6 +1,7 @@
 import * as vscode from 'vscode';
 import {
   resolveXokfLink,
+  resolveXokfAsset,
   resolveRelativeDocLink,
   SCHEME,
   DEFAULT_FEDERATION_ANCHOR,
@@ -27,8 +28,13 @@ function isRelativeDocLink(href: string): boolean {
 
 // Minimal shapes for the markdown-it pieces we touch, to avoid a dependency on
 // markdown-it's own typings inside the extension.
+interface ResourceProvider {
+  asWebviewUri(resource: vscode.Uri): vscode.Uri;
+}
+
 interface RenderEnv {
   currentDocument?: vscode.Uri;
+  resourceProvider?: ResourceProvider;
 }
 
 interface Token {
@@ -48,8 +54,16 @@ type LinkOpenRule = (
   self: Renderer
 ) => string;
 
+type ImageRule = (
+  tokens: Token[],
+  idx: number,
+  options: unknown,
+  env: RenderEnv,
+  self: Renderer
+) => string;
+
 interface MarkdownIt {
-  renderer: { rules: { link_open?: LinkOpenRule } };
+  renderer: { rules: { link_open?: LinkOpenRule; image?: ImageRule } };
 }
 
 interface ExtendOptions {
@@ -104,6 +118,41 @@ export function makeExtendMarkdownIt(opts: ExtendOptions) {
 
       return original
         ? original(tokens, idx, options, env, self)
+        : self.renderToken(tokens, idx, options);
+    };
+
+    const originalImage = md.renderer.rules.image;
+
+    md.renderer.rules.image = (tokens, idx, options, env, self) => {
+      const token = tokens[idx];
+      const src = token.attrGet('src');
+
+      if (
+        typeof src === 'string' &&
+        src.startsWith(SCHEME) &&
+        env?.currentDocument?.scheme === 'file'
+      ) {
+        const fromPath = env.currentDocument.fsPath;
+        const resolved = resolveXokfAsset(fromPath, src, opts.getAnchor());
+        if (resolved) {
+          const target = vscode.Uri.file(resolved.fsPath);
+          // VS Code's own image renderer converts scheme-less/file: sources to
+          // a CSP-safe webview resource URI via `resourceProvider`. It only
+          // runs on plain paths, so an explicit `xokf:` scheme reaches us
+          // unresolved — we must do the same conversion ourselves, or the
+          // <img> tag will still be blocked by the preview's CSP even after
+          // pointing at the right file.
+          const finalSrc = env.resourceProvider
+            ? env.resourceProvider.asWebviewUri(target).toString()
+            : target.toString();
+          token.attrSet('src', finalSrc);
+          token.attrSet('data-src', src);
+        }
+        // Unresolved → leave the src untouched (native behavior: broken image).
+      }
+
+      return originalImage
+        ? originalImage(tokens, idx, options, env, self)
         : self.renderToken(tokens, idx, options);
     };
 
