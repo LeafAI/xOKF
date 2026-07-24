@@ -2,7 +2,7 @@
   "name": "xokf",
   "displayName": "xokf",
   "description": "Navigate cross-bundle OKF references via the xokf:// scheme in Markdown.",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "cloorc",
   "icon": "assets/icon.png",
   "license": "MIT",

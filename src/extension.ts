@@ -1,4 +1,7 @@
 import * as vscode from 'vscode';
+import * as fs from 'fs';
+import * as os from 'os';
+import * as path from 'path';
 import { XokfDocumentLinkProvider } from './linkProvider';
 import { XokfJsonLinkProvider } from './jsonLinkProvider';
 import { makeExtendMarkdownIt, getConfiguredAnchor } from './markdownPreview';
@@ -77,20 +80,39 @@ function findMarkdownDocument(): vscode.TextDocument | undefined {
 
 /**
  * Render the given Markdown document (resolving `xokf://` links/images the
- * same way the live preview does) into a standalone webview and trigger the
- * browser print dialog, so the user can save it as PDF. Rendering happens
- * entirely locally — no external process or dependency is spawned.
+ * same way the live preview does) to a standalone HTML file in a temp
+ * directory, then hand it off to the OS's default browser via
+ * `openExternal`.
+ *
+ * We deliberately do NOT use a VS Code WebviewPanel here: VS Code always
+ * sandboxes webview content in an iframe without the `allow-modals`
+ * permission (see webview/browser/pre/index.html — the sandbox attribute
+ * list has no toggle for it, even with `enableScripts: true`), and browsers
+ * treat `window.print()` as a modal-dialog-class API. Inside that sandbox the
+ * call is silently ignored — no error, the print dialog just never appears.
+ * A real browser tab has no such restriction, so `window.print()` (and the
+ * page's manual print button, and the user's own Ctrl/Cmd+P) all work there.
  */
 async function exportDocumentToPdf(document: vscode.TextDocument): Promise<void> {
   const { html, title } = renderDocumentForExport(document, getConfiguredAnchor());
 
-  const panel = vscode.window.createWebviewPanel(
-    'xokfPdfExport',
-    `导出 PDF: ${title}`,
-    vscode.ViewColumn.Active,
-    { enableScripts: true }
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'xokf-pdf-export-'));
+  const tmpFile = path.join(tmpDir, `${sanitizeFileName(title)}.html`);
+  fs.writeFileSync(tmpFile, html, 'utf8');
+
+  const opened = await vscode.env.openExternal(vscode.Uri.file(tmpFile));
+  if (!opened) {
+    throw new Error('无法在系统默认浏览器中打开导出文件。');
+  }
+  void vscode.window.showInformationMessage(
+    'xokf: 已在浏览器中打开导出预览 — 使用 Ctrl/Cmd+P（或页面上的打印按钮）打印，并选择“另存为 PDF”。'
   );
-  panel.webview.html = html;
+}
+
+/** Strip characters that are unsafe in a filename across platforms. */
+function sanitizeFileName(name: string): string {
+  const base = name.replace(/\.[^./\\]+$/, '') || 'document';
+  return base.replace(/[/\\?%*:|"<>]/g, '_');
 }
 
 export function activate(context: vscode.ExtensionContext) {
@@ -158,8 +180,8 @@ export function activate(context: vscode.ExtensionContext) {
   );
 
   // Export the current Markdown document (with xokf:// links/images
-  // resolved) to a standalone webview and trigger the browser print dialog,
-  // so the user can save it as PDF for sharing.
+  // resolved) to a standalone HTML file opened in the system browser, which
+  // supports triggering the print dialog for "Save as PDF".
   context.subscriptions.push(
     vscode.commands.registerCommand('xokf.exportToPdf', async () => {
       const document = findMarkdownDocument();

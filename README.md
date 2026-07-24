@@ -71,7 +71,9 @@ Run **`xokf: 导出为 PDF（Export to PDF）`** from the Command Palette (or th
 - `xokf://` and plain relative **links** are resolved and rewritten to an absolute `file://` URI (best-effort — only actionable on the machine that produced the export).
 - Unresolved references are left untouched, same tolerance as everywhere else in the extension.
 
-The command opens a webview with the rendered document and triggers the browser print dialog — choose "Save as PDF" (or your OS's equivalent) to finish the export. Rendering happens entirely locally; no external process, browser, or network access is used.
+The command renders the document to a standalone HTML file and opens it in your system's default browser, where you can print it (Ctrl/Cmd+P, or the page's own print button) and choose "Save as PDF" (or your OS's equivalent) to finish the export. Rendering happens entirely locally — no network access is used.
+
+> Why a browser tab, not a VS Code webview? VS Code always sandboxes webview content in an iframe without the `allow-modals` permission, and browsers treat `window.print()` as a modal-dialog-class API — inside that sandbox the call is silently ignored (no error, the dialog just never appears). A real browser tab has no such restriction.
 
 ## Scope and limitations
 

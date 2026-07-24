@@ -5,6 +5,20 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.2.1] - 2026-07-24
+
+### Fixed
+
+- `xokf: 导出为 PDF` command: the print/"Save as PDF" button did nothing when
+  the exported document was rendered inside a VS Code `WebviewPanel`. VS Code
+  always sandboxes webview content in an iframe without the `allow-modals`
+  permission (there's no `WebviewOptions` toggle for it), and browsers treat
+  `window.print()` as a modal-dialog-class API, so the call was silently
+  swallowed inside that sandbox — no error, the print dialog just never
+  appeared. Changed the export to write the rendered HTML to a temp file and
+  open it with `vscode.env.openExternal` in the system's default browser
+  instead, where `window.print()` (and Ctrl/Cmd+P) work normally.
+
 ## [0.2.0] - 2026-07-24
 
 ### Added
